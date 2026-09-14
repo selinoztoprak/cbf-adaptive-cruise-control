@@ -1,0 +1,9 @@
+*.csv
+build/
+*.pdf
+*.png
+__pycache__/
+*.pyc
+.env
+venv/
+.DS_Store
