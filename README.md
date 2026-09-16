@@ -32,9 +32,14 @@ where $v_L$ is the lead vehicle velocity, $u$ is the control wheel force and $m$
 
 The full state-space model is therefore as such:
 
-$$
-\begin{bmatrix} \dot{D} \\ \dot{v} \end{bmatrix} = \begin{bmatrix} v_L - v \\ -\frac{F_r(v)}{m} \end{bmatrix} + \begin{bmatrix} 0 \\ \frac{1}{m} \end{bmatrix}u
-$$
+```math
+\begin{bmatrix} \dot{D} \\ \dot{v} \end{bmatrix}
+=
+\begin{bmatrix} v_L - v \\ -\frac{F_r(v)}{m} \end{bmatrix}
++
+\begin{bmatrix} 0 \\ \frac{1}{m} \end{bmatrix}u
+```
+
 
 
 
