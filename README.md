@@ -60,7 +60,7 @@ $$
 
 where $\tau$ is the time headway and D_{min} is the minimum allowable bumper-to-bumper distance between the ego and lead vehicle. 
 
-###Lie Derivatives 
+### Lie Derivatives 
 The Lie derivatives for drift dynamics $(L_fh(x))$ and the control vector field $(L_gh(x))$are found by taking the time derivatives of the barrier function along the system's trajectories. 
 
 $$
@@ -71,7 +71,7 @@ $$
 L_gh(x) = \frac{-\tau}{m}
 $$
 
-##Actuator Saturation 
+## Actuator Saturation 
 
 Real vehicles have strict actuator limits due to engine acceleration and tire friction braking:
 
