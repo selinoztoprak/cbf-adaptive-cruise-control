@@ -10,10 +10,7 @@ The ego vehicle is modeled as a continuous time, control-affine nonlinear system
 Two states are tracked: the relative bumper distance to the lead vehicle, D, and the ego vehicle's longitudinal velocity, v:
 
 $$
-
-
 \begin{bmatrix} D \\ v \end{bmatrix}
-
 $$
 
 
@@ -29,7 +26,6 @@ $$
 
 $$
 F_r(v) = f_0 + f_1v + f_2v^2
-
 $$
 
 where $v_L$ is the lead vehicle velocity, $u$ is the control wheel force and $m$ is the vehicle mass. 
@@ -37,10 +33,7 @@ where $v_L$ is the lead vehicle velocity, $u$ is the control wheel force and $m$
 The full state-space model is therefore as such:
 
 $$
-
-
 \begin{bmatrix} \dot{D} \\ \dot{v} \end{bmatrix} = \begin{bmatrix} v_L - v \\ \frac{-F_r(v)}{m} \end{bmatrix} + \begin{bmatrix} 0 \\ \frac{1}{m} \end{bmatrix}u
-
 $$
 
 
@@ -58,7 +51,6 @@ A time-headway separation is added for safety. The safe operating set $\mathcal{
 
 $$
 h(x) = D - \tau v - D_{min} \geq 0
-
 $$
 
 where $\tau$ is the time headway and D_{min} is the minimum allowable bumper-to-bumper distance between the ego and lead vehicle. 
@@ -68,7 +60,6 @@ The Lie derivatives for drift dynamics $(L_fh(x))$ and the control vector field 
 
 $$
 L_fh(x) = v_L - v + \frac{\tau F_r(v)}{m}
-
 $$
 
 $$
@@ -81,7 +72,6 @@ Real vehicles have strict actuator limits due to engine acceleration and tire fr
 
 $$
 u_{min} \leq u \leq u_{max}
-
 $$
 
 When a slower vehicle cuts in front of the egov ehicle, the relative distance D drops abruptly, such that h(x) becomes highly negative. The zeroing CBF conditions stipulates that the vehicle cannot approach the safety boundary too fast, demanding an impossible amountof instantaneous braking force to satisfy the constraint. 
