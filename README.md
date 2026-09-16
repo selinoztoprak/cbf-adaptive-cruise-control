@@ -89,7 +89,17 @@ To maintain point-wise feasibility for the Quadratic Program during distrubances
 
 The inline optimisation filter is solved at each time step:
 
-$$\begin{aligned} u^*(x), \delta^*(x) = \arg\min_{u, \delta} & \quad \frac{1}{2} (u - u_{\text{nom}})^2 + p \delta^2 \\ \text{s.t.} & \quad L_f h(x) + L_g h(x) u \ge -\gamma h(x) - \delta \\ & \quad u_{\min} \le u \le u_{\max} \\ & \quad \delta \ge 0 \end{aligned}$$
+```math
+\begin{aligned}
+u_{(x)},\; \delta_{(x)} = \arg\min_{u, \delta} 
+&\quad \frac{1}{2}(u - u_{\text{nom}})^2 + p\,\delta^2 \\
+\text{s.t.}\quad 
+& L_f h(x) + L_g h(x) u \ge -\gamma h(x) - \delta \\
+& u_{\min} \le u \le u_{\max} \\
+& \delta \ge 0
+\end{aligned}
+```
+
 
 Under normal operation, a large penalty $p$ (initially set to $10^6$) forces the solver to set $\delta^* = 0$, preserving the original CBF condition. When a cut-in occurs and safety cannot be maintained, the QP increases $\delta > 0$ just enough to maintain mathematical feasibility. This clamps the actuator to the maximum possible physical deceleration ($u^* = u_{min}$), restoring forward invariance. 
 
