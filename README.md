@@ -111,12 +111,24 @@ The benchamark script run_simulation.py coapres two closed-loop scenarios:
 
 2. **CBF-QP Shielded Controller:** The safety filter overrides the nominal throttle, heavily relaxing the slack variable to remain feasible while commanding the absolute brake limit to safely arrest the vehicle and rebuild a safe following distance. 
 
-## Quickstart Guide 
+## Quickstart Guide
 
-This project requires standard sceintific Python packages: numpy, scipy, cvxpy and matplotlib. 
+This project requires standard scientific Python packages: `numpy`, `scipy`, `cvxpy`, and `matplotlib`.
 
-To run the simulation and generate comparison plots, execute:
+To set up your environment, run the simulation, and generate the comparison plots, execute the following from the project root:
 
-`cd scripts` 
+```bash
+# 1. Create a virtual environment
+python -m venv .venv
 
-`python run_comparison.py`
+# 2. Activate the virtual environment
+# For Windows PowerShell:
+venv\Scripts\Activate.ps1
+# (For Mac/Linux use: source venv/bin/activate)
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Run the benchmark simulation
+cd scripts
+python run_comparison.py
