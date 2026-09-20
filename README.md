@@ -1,7 +1,7 @@
-# **Adaptive Cruise Control with CBF-QP Safety Filter**
+# **Adaptive Cruise Control with CLF-CBF-QP Safety Filter**
 **_Author: Sophie Selin Oztoprak_**
 
-This repository implements an Adaptive Cruise Control (ACC) system that uses a Control Barrier Function (CBF) Safety Filter. This is a personal project that explores and implements modern control laws, with a focus on state-space modelling, Control Barrier Functions (CBFs) and the limits of quadratic programming under actuator saturation.
+This repository implements an Adaptive Cruise Control (ACC) system that uses a Control Barrier Function (CBF) Safety Filter. This is a personal project that explores and implements modern control laws, with a focus on state-space modelling and Quadratic Programs (QPs) formed with Control Lyapunov and Barrier Functions (CLFs and CBFs).
 
 ## Mathematical Formulation 
 
@@ -44,24 +44,45 @@ The full state-space model is therefore as such:
 
 
 
-## Safety and Control Barrier Functions (CBFs)
+## Control Lyapunov Functions and Control Barrier Functions (CLF-CBFs)
 
-The nominal controller attempts to track a desired cruising speed, $v_{cruise}$ using a feedback-feedforward law:
+A nominal controller is used as comparison to the CLF-CBF controller. The nominal controller only tracks the desired cruising speed, $v_{cruise}$ using a feedback-feedforward law:
 
 $$
 u_{nom} = -k_v(v - v_{cruise}) + F_r(v_{cruise})
 $$
 
-A time-headway separation is added for safety. The safe operating set $\mathcal{C}$ is defined by the zero-superlevel set of the barrier function h(x):
+### Control Lyapunov Function (CLF)
+
+To regulate the vehicle to $v_{cruise}$, a quadratic Control Lyapunov Function (CLF) is defined:
+
+$$
+V(x) = (v - v_{cruise})^2
+$$
+
+Its Lie derivatives along the system dynamics are:
+
+$$L_f V(x) = -\frac{2(v - v_{\text{cruise}}) F_r(v)}{m}, \quad L_g V(x) = \frac{2(v - v_{\text{cruise}})}{m}$$
+
+The exponential convergence condition requires:
+
+$$L_f V(x) + L_g V(x)u \le -c V(x)$$
+
+where $c > 0$ denotes the convergence rate.
+
+### Control Barrier Function (CBF)
+
+
+The CBF ensures safety via distance invariance. The safe operating set $\mathcal{C}$ is defined by the zero-superlevel set of the barrier function h(x):
 
 $$
 h(x) = D - \tau v - D_{min} \geq 0
 $$
 
-where $\tau$ is the time headway and D_{min} is the minimum allowable bumper-to-bumper distance between the ego and lead vehicle. 
+where $\tau$ is the time headway and $D_{min}$ is the minimum allowable bumper-to-bumper distance between the ego and lead vehicle. 
 
-### Lie Derivatives 
-The Lie derivatives for drift dynamics $(L_fh(x))$ and the control vector field $(L_gh(x))$are found by taking the time derivatives of the barrier function along the system's trajectories. 
+
+The Lie derivatives along the system trajectories are:
 
 $$
 L_fh(x) = v_L - v + \frac{\tau F_r(v)}{m}
@@ -70,6 +91,10 @@ $$
 $$
 L_gh(x) = \frac{-\tau}{m}
 $$
+
+Forward invariance of $\mathcal{C}$ is ensured by enforcing:
+
+$$L_f h(x) + L_g h(x) u \ge -\gamma h(x)$$
 
 ## Actuator Saturation 
 
@@ -83,25 +108,22 @@ When a slower vehicle cuts in front of the egov ehicle, the relative distance D 
 
 As a result, the et of admissible inputs that satisfy botht he safety barrier and actuator bounds becomes empty. Standard optimsiation sovlers would crash with an infeasibility error. 
 
-## The Relaxed CBF-QP Formulation 
+## The CLF-CBF-QP Formulation
 
-To maintain point-wise feasibility for the Quadratic Program during distrubances, a slack variable $\delta $ is introduced. 
+To guarantee safety as an uncompromising requirement, the CBF condition is treated as a hard constraint. To resolve conflicts between speed regulation and collision avoidance during critical scenarios (such as abrupt cut-ins), a slack variable $\delta \ge 0$ is introduced to relax the CLF tracking condition.
 
-The inline optimisation filter is solved at each time step:
+The quadratic program is solved at each time step:
 
-```math
-\begin{aligned}
-u_{(x)},\; \delta_{(x)} = \arg\min_{u, \delta} 
-&\quad \frac{1}{2}(u - u_{\text{nom}})^2 + p\,\delta^2 \\
-\text{s.t.}\quad 
-& L_f h(x) + L_g h(x) u \ge -\gamma h(x) - \delta \\
-& u_{\min} \le u \le u_{\max} \\
+$$u^*, \delta^* = \arg\min_{u, \delta} \frac{1}{2}(u - u_{\text{nom}})^2 + p \delta^2$$
+
+$$\begin{aligned}
+\text{s.t.} \quad & L_f h(x) + L_g h(x)u \ge -\gamma h(x) && \text{(Hard Safety Constraint)} \\
+& L_f V(x) + L_g V(x)u \le -c V(x) + \delta && \text{(Soft Tracking Constraint)} \\
+& u_{\min} \le u \le u_{\max} && \text{(Actuator Limits)} \\
 & \delta \ge 0
-\end{aligned}
-```
+\end{aligned}$$
 
-
-Under normal operation, a large penalty $p$ (initially set to $10^6$) forces the solver to set $\delta^* = 0$, preserving the original CBF condition. When a cut-in occurs and safety cannot be maintained, the QP increases $\delta > 0$ just enough to maintain mathematical feasibility. This clamps the actuator to the maximum possible physical deceleration ($u^* = u_{min}$), restoring forward invariance. 
+Under nominal conditions, a large slack penalty $p$ drives $\delta^* \to 0$, enabling asymptotic speed tracking while maintaining headway. When an abrupt disturbance occurs and safe deceleration conflicts with the target cruising speed, the QP relaxes the CLF constraint by increasing $\delta > 0$, prioritizing the safety barrier condition and decelerating the vehicle safely.
 
 ## Simulation Results 
 

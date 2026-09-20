@@ -66,7 +66,6 @@ def run_simulation(use_cbf: bool, cut_in: bool, t_end: float = 12.0, dt: float =
         u_nom_hist[k] = u_nom
 
         if use_cbf:
-            # Uses your exact filter_control method signature
             u_act, delta = cbf.filter_control(x=x_curr, v_lead=v_lead)
             slacks[k] = delta
         else:
@@ -75,9 +74,6 @@ def run_simulation(use_cbf: bool, cut_in: bool, t_end: float = 12.0, dt: float =
             slacks[k] = 0.0
 
         u_actual_hist[k] = u_act
-
-        # Step dynamics forward: x_{k+1}
-        # If your dynamics step expects step(x, u, v_lead, dt)
         x_next = sim.step(x=x_curr, u=u_act, v_lead=v_lead, t_start=t)
         states[k + 1] = x_next
         h_hist[k + 1] = cbf.h(x_next)
