@@ -6,7 +6,7 @@ sys.path.append(str(src_path))
 
 import matplotlib.pyplot as plt
 import numpy as np
-from cbf_filter import CBFFilter
+from clf_cbf_filter import CBFFilter
 from dynamics import VehicleDynamics
 from nominal_controller import NominalController
 from simulator import ACCSimulator
@@ -17,6 +17,7 @@ def run_simulation(use_cbf: bool, cut_in: bool, t_end: float = 12.0, dt: float =
     v_des = 30.0  # m/s
     v_lead_init = 15.0  # m/s
     t_cut = 3.0  # cut-in occurrence time (s)
+    clf_rate = 1.0
 
     # Initial state: [Distance D = 50 m, Ego velocity v = 30 m/s]
     x0 = np.array([50.0, 30.0])
@@ -34,6 +35,8 @@ def run_simulation(use_cbf: bool, cut_in: bool, t_end: float = 12.0, dt: float =
         p=1e6,
         u_min_ratio=-0.4,
         u_max_ratio=0.25,
+        v_des = v_des,
+        clf_rate = clf_rate,
     )
 
     t_steps = int(t_end / dt)
@@ -99,7 +102,7 @@ def main():
     t = res_cbf["time"]
     t_ctrl = t[:-1]
 
-    fig, axs = plt.subplots(4, 1, figsize=(9, 11), sharex=True)
+    fig, axs = plt.subplots(5, 1, figsize=(9, 11), sharex=True)
 
     # 1. Bumper-to-Bumper Distance
     axs[0].plot(
@@ -135,6 +138,14 @@ def main():
     axs[3].set_ylabel("Barrier $h(x)$")
     axs[3].grid(True)
     axs[3].legend(loc="lower right")
+
+    
+    # 4. Slack term
+    axs[4].plot(t_ctrl, res_cbf["slacks"], "b-", label="CLF $\\delta$")
+    axs[4].set_xlabel("Time [s]")
+    axs[4].set_ylabel("Slack $\\delta$")
+    axs[4].grid(True)
+    axs[4].legend(loc="lower right")
 
     plt.tight_layout()
 
